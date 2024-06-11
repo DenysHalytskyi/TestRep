@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Курс крипти</title>
+    <script src="/crypto.js"></script> <!-- Перевірте, що шлях правильний -->
+</head>
+<body>
+<%- include('partials/header'); -%>
+
+<ul class="recipes">
+  <li class="recipe">
+    <img src="/btc.png" alt="smoothie recipe icon">
+    <h4>Bitcoin</h4>
+    <p>Current price</p>
+    <p id="bitcoinPrice">
+      <script>
+        getPriceBitcoin();
+      </script>
+    </p>
+  </li>
+  <li class="recipe">
+    <img src="/eth.png" alt="smoothie recipe icon">
+    <h4>Ethereum</h4>
+    <p>Current price</p>
+    <p id="EthereumPrice"></p>
+  </li>
+  <li class="recipe">
+    <img src="/tether.png" alt="smoothie recipe icon">
+    <h4>Tether USDT</h4>
+    <p>Current price</p>
+    <p id="TetherPrice"></p>
+  </li>
+  <li class="recipe">
+    <img src="/solana.png" alt="smoothie recipe icon">
+    <h4>Solana</h4>
+    <p>Current price</p>
+    <p id="SolanaPrice"></p>
+  </li>
+  <li class="recipe">
+    <img src="/dogecoin.png" alt="smoothie recipe icon">
+    <h4>Dogecoin </h4>
+    <p>Current price</p>
+    <p id="DogecoinPrice"></p>
+  </li>
+  <li class="recipe">
+    <img src="/pepe.png" alt="smoothie recipe icon">
+    <h4>Pepe coin</h4>
+    <p>Current price</p>
+    <p id="PepePrice"></p>
+  </li>
+</ul>
+
+<%- include('partials/footer'); -%>
+</body>
+</html>
