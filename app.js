@@ -6,12 +6,23 @@ const { requireAuth, checkUser } = require('./middleware/authMiddleware');
 const fetch = require('node-fetch');
 const app = express();
 const path = require('path');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const axios = require('axios');
 
 // middleware
 app.use(express.static('public'));
 app.use(express.static(__dirname));
 app.use(express.json());
 app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Session middleware
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true
+}));
 
 // view engine
 app.set('view engine', 'ejs');
@@ -23,7 +34,6 @@ mongoose.connect(dbURI)
   .then((result) => app.listen(3000))
   .catch((err) => console.log(err));
 
-// Функція для отримання курсу валют
 function getExchangeRates(callback) {
   const urls = {
     USD: 'https://api.nbp.pl/api/exchangerates/rates/A/USD/?format=json',
@@ -61,7 +71,7 @@ app.get('/', (req, res) => res.render('home'));
 app.get('/crypto', requireAuth, (req, res) => res.render('crypto'));
 app.use(authRoutes);
 
-// Додаємо маршрут для отримання курсу валют у форматі JSON
+
 app.get('/api/exchange-rates', (req, res) => {
   getExchangeRates((rates) => {
     if (rates) {
@@ -72,7 +82,76 @@ app.get('/api/exchange-rates', (req, res) => {
   });
 });
 
-// Додаємо маршрут для відображення сторінки з курсами валют
+
 app.get('/exchange-rate', (req, res) => {
   res.render('exchange-rate');
 });
+
+// Route to display payment button
+app.get('/pay', (req, res) => {
+    res.send(`
+        <html>
+        <body>
+            <form action="/payu-payment" method="POST">
+                <button type="submit">Оплатить с PayU</button>
+            </form>
+        </body>
+        </html>
+    `);
+});
+
+// Route to handle payment
+app.post('/payu-payment', async (req, res) => {
+    try {
+        const response = await axios.post('https://secure.snd.payu.com/pl/standard/user/oauth/authorize', {
+            grant_type: 'client_credentials',
+            client_id: '300746',
+            client_secret: '2ee86a66e5d97e3fadc400c9f19b065d'
+        });
+
+        const { access_token } = response.data;
+
+        const order = {
+            notifyUrl: 'http://yourdomain.com/notify',
+            customerIp: '127.0.0.1',
+            merchantPosId: '300746',
+            description: 'Product description',
+            currencyCode: 'PLN',
+            totalAmount: '10000',
+            buyer: {
+                email: 'buyer@example.com',
+                phone: '123456789',
+                firstName: 'John',
+                lastName: 'Doe'
+            },
+            products: [
+                {
+                    name: 'Product 1',
+                    unitPrice: '10000',
+                    quantity: '1'
+                }
+            ]
+        };
+
+        const paymentResponse = await axios.post('https://secure.snd.payu.com/api/v2_1/orders', order, {
+            headers: {
+                Authorization: `Bearer ${access_token}`
+            }
+        });
+
+        const { redirectUri } = paymentResponse.data;
+
+        res.redirect(redirectUri);
+    } catch (error) {
+        console.error('Ошибка при создании заказа:', error);
+        res.status(500).send('Ошибка при создании заказа');
+    }
+});
+
+// Route to display top-up page
+app.get('/top-up', (req, res) => {
+    res.render('top-up');
+});
+
+module.exports = app;
+

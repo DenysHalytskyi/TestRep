@@ -14,10 +14,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('cny-rate').textContent = `PLN: ${rates.CNY}`;
         document.getElementById('sek-rate').textContent = `PLN: ${rates.SEK}`;
       } else {
-        console.error('Не вдалося отримати курси валют');
+        console.error('Failed to get exchange rates');
       }
     } catch (error) {
-      console.error('Помилка при отриманні курсів валют:', error);
+      console.error('An error occurred when receiving exchange rates:', error);
     }
   });
+
   
